@@ -1,6 +1,6 @@
 from django.db import models
 from utils.timestamp import TimeStampedModel
-from users.models import User, Seller
+from users.models import User
 
 class Product(TimeStampedModel):
     subject = models.CharField(max_length=100)
