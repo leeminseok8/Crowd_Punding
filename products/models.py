@@ -16,17 +16,11 @@ class Product(TimeStampedModel):
 
 class ProductUser(models.Model):
     total_supporter = models.IntegerField()
+    total_amount = models.IntegerField()
     count = models.IntegerField()
+    rate = models.IntegerField()
     user = models.ForeignKey("User", on_delete=models.CASCADE)
     product = models.ForeignKey("Product", on_delete=models.CASCADE)
 
     class Meta:
         db_table = "products_users"
-
-class Productdetail(models.Model):
-    total_amount = models.IntegerField()
-    rate = models.IntegerField()
-    product = models.OneToOneField("products", on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "productdetail"
