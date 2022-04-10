@@ -26,7 +26,6 @@ class ProductUser(models.Model):
 class Productdetail(models.Model):
     total_amount = models.IntegerField()
     rate = models.IntegerField()
-    product = models.OneToOneField("products", on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "productdetail"
+        db_table = "productdetails"
