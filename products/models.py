@@ -21,7 +21,7 @@ class ProductUser(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "products_users"
+        db_table = "productsusers"
 
 class Productdetail(models.Model):
     total_amount = models.IntegerField()
