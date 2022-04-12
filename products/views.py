@@ -66,3 +66,20 @@ class ListView(View):
 
         return JsonResponse({"result" : result}, status=200)
 
+
+class DetailPageView(View):
+    def get(self, request, product_id):
+        product = Product.objects.get(id=product_id)
+
+        data = {
+            "subject" : product.subject,
+            "name" : product.seller.name,
+            "total_amount" : product.productdetail.total_amount,
+            "rate" : product.productdetail.rate,
+            "d-day" : (product.end_date-date.today()).days,
+            "description" : product.description,
+            "goal_amount" : product.goal_amount,
+            "total_supporter" : product.productdetail.total_supporter
+        }
+
+        return JsonResponse({"result" : data}, status=200)
