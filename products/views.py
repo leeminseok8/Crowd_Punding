@@ -36,35 +36,40 @@ class OpenProductView(View):
             return JsonResponse({"message" : "SECCESS"}, status=200)
 
         except KeyError:
-            return JsonResponse({"message" : "KEYERROR"}, status=400)
+            return JsonResponse({"message" : "KEY_ERROR"}, status=400)
+        except ValueError:
+            return JsonResponse({"result" : "VALUE_ERROR"}, status=400)
 
 
 class ListView(View):
     def get(self, request):
-        search = request.GET.get("search", None)
-        sorting = request.GET.get("sorting", "id")
+        try:
+            search = request.GET.get("search", None)
+            sorting = request.GET.get("sorting", "id")
 
-        sort_set = {
-            "high_amount" : "-productdetail__total_amount",
-            "low_amount" : "product__total_amount",
-            "late_open" : "-created_at",
-            "early_open" : "created_at",
-            "id" : "id"
-        }
+            sort_set = {
+                "high_amount" : "-productdetail__total_amount",
+                "low_amount" : "product__total_amount",
+                "late_open" : "-created_at",
+                "early_open" : "created_at",
+                "id" : "id"
+            }
 
-        q = Q()
-        if search:
-            q &= Q(subject__icontains=search)
+            q = Q()
+            if search:
+                q &= Q(subject__icontains=search)
 
-        result = [{
-            "subject" : product.subject,
-            "name" : product.seller.name,
-            "total_amount" : str(format((product.productdetail.total_amount), ",d"))+"원",
-            "rate" : str(int((product.productdetail.total_amount/product.goal_amount)*100))+"%",
-            "d-day" : str((product.end_date-date.today()).days)+"일"
-        }for product in Product.objects.filter(q).order_by(sort_set[sorting])]
+            result = [{
+                "subject" : product.subject,
+                "name" : product.seller.name,
+                "total_amount" : str(format((product.productdetail.total_amount), ",d"))+"원",
+                "rate" : str(int((product.productdetail.total_amount/product.goal_amount)*100))+"%",
+                "d-day" : str((product.end_date-date.today()).days)+"일"
+            }for product in Product.objects.filter(q).order_by(sort_set[sorting])]
 
-        return JsonResponse({"result" : result}, status=200)
+            return JsonResponse({"result" : result}, status=200)
+        except Product.DoesNotExist:
+            return JsonResponse({"result" : "product does not exist"}, status=400)
 
 
 class DetailPageView(View):
@@ -83,3 +88,11 @@ class DetailPageView(View):
         }
 
         return JsonResponse({"result" : data}, status=200)
+
+class DeleteProductView(View):
+    def delete(self, request, product_id):
+        product = Product.objects.get(id=product_id)
+
+        product.delete()
+
+        return JsonResponse({"return" : "success"}, status=200)
