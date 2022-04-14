@@ -18,11 +18,7 @@ class ProductOpenView(View):
             amount = data["amount"]
             goal_amount = data["goal_amount"]
             end_date = data["end_date"]
-            seller_name = data["seller"]
-
-            seller, created = Seller.objects.get_or_create(
-                name = seller_name
-            )
+            seller_id = data["seller_id"]
 
             Product.objects.create(
                 subject = subject,
@@ -30,7 +26,7 @@ class ProductOpenView(View):
                 amount = amount,
                 goal_amount = goal_amount,
                 end_date = end_date,
-                seller = seller
+                seller_id = seller_id
             )
 
             return JsonResponse({"message" : "SECCESS"}, status=200)
@@ -60,7 +56,9 @@ class ProductListView(View):
                 q &= Q(subject__icontains=search)
 
             result = [{
+                "product_id" : product.id,
                 "subject" : product.subject,
+                "seller_id" : product.seller.id,
                 "name" : product.seller.name,
                 "total_amount" : str(format((product.productdetail.total_amount), ",d"))+"원",
                 "rate" : str(int((product.productdetail.total_amount/product.goal_amount)*100))+"%",
@@ -81,7 +79,9 @@ class ProductDetailView(View):
             product = Product.objects.get(id=product_id)
     
             data = {
+                "product_id" : product.id,
                 "subject" : product.subject,
+                "seller_id" : product.seller.id,
                 "name" : product.seller.name,
                 "total_amount" : product.productdetail.total_amount,
                 "rate" : product.productdetail.rate,
@@ -114,13 +114,15 @@ class ProductAdminView(View):    # Update, Delete method 클래스
             data = json.loads(request.body)
     
             product = Product.objects.get(id=product_id)
-    
+
+            seller_id = data.get("seller_id", product.seller.id)
             subject = data.get("subject", product.subject)
             description = data.get("description", product.description)
             amount = data.get("amount", product.amount)
             end_date = data.get("end_date", product.end_date)
     
             Product.objects.filter(id=product_id).update(
+                seller_id = seller_id,
                 subject = subject,
                 description = description,
                 amount = amount,
@@ -132,4 +134,4 @@ class ProductAdminView(View):    # Update, Delete method 클래스
         except Product.DoesNotExist:
             return JsonResponse({"result" : "Product matching query does not exist."}, status=400)
         except ValueError:
-            return JsonResponse({"result" : "VALUE_ERROR"})
+            return JsonResponse({"result" : "VALUE_ERROR"}, status=400)
