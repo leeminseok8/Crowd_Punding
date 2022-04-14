@@ -1,4 +1,5 @@
 import json
+from turtle import update
 
 from django.db.models import Q
 from datetime import date
@@ -68,6 +69,8 @@ class ListView(View):
             }for product in Product.objects.filter(q).order_by(sort_set[sorting])]
 
             return JsonResponse({"result" : result}, status=200)
+        except KeyError:
+            return JsonResponse({"result" : "KEY_ERROR"}, status=400)
         except Product.DoesNotExist:
             return JsonResponse({"result" : "product does not exist"}, status=400)
 
@@ -96,3 +99,24 @@ class DeleteProductView(View):
         product.delete()
 
         return JsonResponse({"return" : "success"}, status=200)
+
+
+class UpdateProductView(View):
+    def patch(self, request, product_id):
+        data = json.loads(request.body)
+
+        product = Product.objects.get(id=product_id)
+
+        subject = data.get("subject", product.subject)
+        description = data.get("description", product.description)
+        amount = data.get("amount", product.amount)
+        end_date = data.get("end_date", product.end_date)
+
+        Product.objects.filter(id=product_id).update(
+            subject = subject,
+            description = description,
+            amount = amount,
+            end_date = end_date
+        )
+
+        return JsonResponse({"result" : "SECCESS"}, status=200)
