@@ -1,5 +1,4 @@
 import json
-from turtle import update
 
 from django.db.models import Q
 from datetime import date
@@ -9,7 +8,7 @@ from django.views import View
 from products.models import Product
 from users.models import Seller
 
-class OpenProductView(View):
+class ProductOpenView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
@@ -42,7 +41,7 @@ class OpenProductView(View):
             return JsonResponse({"result" : "VALUE_ERROR"}, status=400)
 
 
-class ListView(View):
+class ProductListView(View):
     def get(self, request):
         try:
             search = request.GET.get("search", None)
@@ -50,7 +49,7 @@ class ListView(View):
 
             sort_set = {
                 "high_amount" : "-productdetail__total_amount",
-                "low_amount" : "product__total_amount",
+                "low_amount" : "productdetail__total_amount",
                 "late_open" : "-created_at",
                 "early_open" : "created_at",
                 "id" : "id"
@@ -69,54 +68,68 @@ class ListView(View):
             }for product in Product.objects.filter(q).order_by(sort_set[sorting])]
 
             return JsonResponse({"result" : result}, status=200)
+
         except KeyError:
-            return JsonResponse({"result" : "KEY_ERROR"}, status=400)
+            return JsonResponse({"result" : "KEY_ERROR"}, status=400)    # sorting key값이 없을 시 발생
         except Product.DoesNotExist:
-            return JsonResponse({"result" : "product does not exist"}, status=400)
+            return JsonResponse({"result" : "Product matching query does not exist"}, status=400)
 
 
-class DetailPageView(View):
+class ProductDetailView(View):
     def get(self, request, product_id):
-        product = Product.objects.get(id=product_id)
+        try:
+            product = Product.objects.get(id=product_id)
+    
+            data = {
+                "subject" : product.subject,
+                "name" : product.seller.name,
+                "total_amount" : product.productdetail.total_amount,
+                "rate" : product.productdetail.rate,
+                "d-day" : (product.end_date-date.today()).days,
+                "description" : product.description,
+                "goal_amount" : product.goal_amount,
+                "total_supporter" : product.productdetail.total_supporter
+            }
+    
+            return JsonResponse({"result" : data}, status=200)
 
-        data = {
-            "subject" : product.subject,
-            "name" : product.seller.name,
-            "total_amount" : product.productdetail.total_amount,
-            "rate" : product.productdetail.rate,
-            "d-day" : (product.end_date-date.today()).days,
-            "description" : product.description,
-            "goal_amount" : product.goal_amount,
-            "total_supporter" : product.productdetail.total_supporter
-        }
+        except Product.DoesNotExist:
+            return JsonResponse({"result" : "Product matching query does not exist."}, status=400)
 
-        return JsonResponse({"result" : data}, status=200)
 
-class DeleteProductView(View):
+class ProductAdminView(View):    # Update, Delete method 클래스
     def delete(self, request, product_id):
-        product = Product.objects.get(id=product_id)
+        try:
+            product = Product.objects.get(id=product_id)
+    
+            product.delete()
+    
+            return JsonResponse({"return" : "SECCESS"}, status=200)
 
-        product.delete()
+        except Product.DoesNotExist:
+            return JsonResponse({"result" : "Product matching query does not exist."}, status=400)
 
-        return JsonResponse({"return" : "success"}, status=200)
-
-
-class UpdateProductView(View):
     def patch(self, request, product_id):
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
+    
+            product = Product.objects.get(id=product_id)
+    
+            subject = data.get("subject", product.subject)
+            description = data.get("description", product.description)
+            amount = data.get("amount", product.amount)
+            end_date = data.get("end_date", product.end_date)
+    
+            Product.objects.filter(id=product_id).update(
+                subject = subject,
+                description = description,
+                amount = amount,
+                end_date = end_date
+            )
+    
+            return JsonResponse({"result" : "SECCESS"}, status=200)
 
-        product = Product.objects.get(id=product_id)
-
-        subject = data.get("subject", product.subject)
-        description = data.get("description", product.description)
-        amount = data.get("amount", product.amount)
-        end_date = data.get("end_date", product.end_date)
-
-        Product.objects.filter(id=product_id).update(
-            subject = subject,
-            description = description,
-            amount = amount,
-            end_date = end_date
-        )
-
-        return JsonResponse({"result" : "SECCESS"}, status=200)
+        except Product.DoesNotExist:
+            return JsonResponse({"result" : "Product matching query does not exist."}, status=400)
+        except ValueError:
+            return JsonResponse({"result" : "VALUE_ERROR"})

@@ -1,11 +1,10 @@
 from django.urls import path
 
-from products.views import OpenProductView, DetailPageView, ListView, DeleteProductView,UpdateProductView
+from products.views import ProductOpenView, ProductDetailView, ProductListView, ProductAdminView
 
 urlpatterns = [
-    path("/openproducts", OpenProductView.as_view()),
-    path("/lists", ListView.as_view()),
-    path("/detailpages/<int:product_id>", DetailPageView.as_view()),
-    path("/deleteproducts/<int:product_id>", DeleteProductView.as_view()),
-    path("/updateproducts/<int:product_id>", UpdateProductView.as_view())
+    path("/open", ProductOpenView.as_view()),
+    path("/list", ProductListView.as_view()),
+    path("/detail/<int:product_id>", ProductDetailView.as_view()),
+    path("/<int:product_id>", ProductAdminView.as_view())    # REST API 설계를 위해 2개 기능을 하나의 URL로 작성
 ]
