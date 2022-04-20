@@ -7,7 +7,7 @@ class Product(TimeStampedModel):
     description = models.TextField(null=True)
     amount = models.IntegerField()
     goal_amount = models.IntegerField()
-    end_date = models.DateField()
+    end_date = models.DateTimeField()
     seller = models.ForeignKey(Seller, on_delete=models.CASCADE)
     user = models.ManyToManyField(User, through="ProductUser")
 
