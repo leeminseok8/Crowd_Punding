@@ -1,12 +1,11 @@
 import json
 
 from django.db.models import Q
-from datetime import date
+from datetime import date, datetime
 from django.http import JsonResponse
 from django.views import View
 
-from products.models import Product
-from users.models import Seller
+from products.models import Product, ProductUser, Productdetail
 
 class ProductOpenView(View):
     def post(self, request):
@@ -112,7 +111,7 @@ class ProductAdminView(View):    # Update, Delete method 클래스
     def patch(self, request, product_id):
         try:
             data = json.loads(request.body)
-    
+
             product = Product.objects.get(id=product_id)
 
             seller_id = data.get("seller_id", product.seller.id)
@@ -120,7 +119,7 @@ class ProductAdminView(View):    # Update, Delete method 클래스
             description = data.get("description", product.description)
             amount = data.get("amount", product.amount)
             end_date = data.get("end_date", product.end_date)
-    
+
             Product.objects.filter(id=product_id).update(
                 seller_id = seller_id,
                 subject = subject,
@@ -128,10 +127,38 @@ class ProductAdminView(View):    # Update, Delete method 클래스
                 amount = amount,
                 end_date = end_date
             )
-    
             return JsonResponse({"result" : "SECCESS"}, status=200)
 
         except Product.DoesNotExist:
             return JsonResponse({"result" : "Product matching query does not exist."}, status=400)
         except ValueError:
             return JsonResponse({"result" : "VALUE_ERROR"}, status=400)
+
+class ProductFundingView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+
+            product_id = data["product_id"]
+            user_id = data["user_id"]
+            count = data["count"]
+
+            productuser, created = ProductUser.objects.get_or_create(
+                user_id = user_id,
+                product_id = product_id
+            )
+
+            productuser.count += count
+            productuser.save()
+
+            product = Product.objects.get(id=product_id)
+            productdetail = Productdetail.objects.get(id = product_id)
+
+            productdetail.total_amount += product.amount * count
+            productdetail.rate += int(((product.amount * count) / product.goal_amount)*100)
+            productdetail.save()
+
+            return JsonResponse({"result" : "SECCESS"}, status=201)
+
+        except KeyError:
+            return JsonResponse({"result" : "KEY_ERROR"}, status=400)
