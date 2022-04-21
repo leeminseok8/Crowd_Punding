@@ -99,10 +99,13 @@ class ProductDetailView(View):
 class ProductAdminView(View):    # Update, Delete method 클래스
     def delete(self, request, product_id):
         try:
+            data = json.loads(request.body)
             product = Product.objects.get(id=product_id)
+
+            if product.seller_id != data.get("seller_id"):
+                return JsonResponse({"result" : "Need to Authorization"})
     
             product.delete()
-    
             return JsonResponse({"return" : "SECCESS"}, status=200)
 
         except Product.DoesNotExist:
@@ -114,11 +117,17 @@ class ProductAdminView(View):    # Update, Delete method 클래스
 
             product = Product.objects.get(id=product_id)
 
+            if product.seller_id != data.get("seller_id"):
+                return JsonResponse({"result" : "Need to Authorization"})
+
             seller_id = data.get("seller_id", product.seller.id)
             subject = data.get("subject", product.subject)
             description = data.get("description", product.description)
             amount = data.get("amount", product.amount)
             end_date = data.get("end_date", product.end_date)
+
+            if date.today() > product.end_date:
+                return JsonResponse({"result" : "Please re-enter the end_date"}, status=200)
 
             Product.objects.filter(id=product_id).update(
                 seller_id = seller_id,
@@ -157,6 +166,10 @@ class ProductFundingView(View):
             productdetail.total_amount += product.amount * count
             productdetail.rate += int(((product.amount * count) / product.goal_amount)*100)
             productdetail.save()
+
+            if date.today() > product.end_date:
+                return JsonResponse({"result" : "The funding was closed"}, status=200)
+
 
             return JsonResponse({"result" : "SECCESS"}, status=201)
 
