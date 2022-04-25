@@ -4,12 +4,16 @@
 
 - 유저는 해당 게시물의 펀딩하기 버튼을 클릭하여 해당 상품 ‘1회펀딩금액’ 만큼 펀딩합니다.
 
+<br>
+
 # 사용 Stack 및 Tools
 
 - Python 3.10
 - Django 4.0
 - MySQL
 - dbdiagram
+
+<br>
 
 # 설치 방법
 
@@ -63,6 +67,8 @@
 
 - DRF로 decorator를 구현하지 못한 아쉬움이 있습니다. 그래서 User App이 단순 펀딩 기능만 구현되고 인증 인가를 구현하지 못한 부분이 아쉽습니다. 온보딩의 결과와 관계없이 빠른 시일 내에 공부하고 추가할 예정입니다.
 
+<br>
+
 # DB 설치
 >``` pip install mysqlclient ```<br>
 
@@ -70,6 +76,7 @@
 
 > ``` (중요) mysql 설치되어 있는지 먼저 확인해주세요 ```<br>
 
+<br>
 
 # DB 재구축
 > 덤프 파일명 : wanted_pre_onboarding.sql (root directory에 있습니다.)<br>
@@ -77,3 +84,8 @@
 > MySQL 접속 후 ``` CREATE DATABASE 데이터베이스명 character set utf8mb4 collate utf8mb4_general_ci; ``` 를 입력하여 DB 생성<br>
 
 > CLI(terminal)환경에서 ``` mysql -u root -p 데이터베이스명 < wanted_pre_onboarding.sql ```
+
+<br>
+
+# API 문서화
+> API는 [문서화 링크](https://documenter.getpostman.com/view/18999255/UyrBiw2w) 에서 확인하실 수 있습니다.
