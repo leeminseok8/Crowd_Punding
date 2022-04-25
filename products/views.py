@@ -1,7 +1,7 @@
 import json
 
 from django.db.models import Q
-from datetime import date, datetime
+from datetime import date
 from django.http import JsonResponse
 from django.views import View
 
@@ -19,13 +19,20 @@ class ProductOpenView(View):
             end_date = data["end_date"]
             seller_id = data["seller_id"]
 
-            Product.objects.create(
+            product = Product.objects.create(
                 subject = subject,
                 description = description,
                 amount = amount,
                 goal_amount = goal_amount,
                 end_date = end_date,
                 seller_id = seller_id
+            )
+
+            Productdetail.objects.create(
+                total_amount = 0,
+                total_supporter = 0,
+                rate = 0,
+                product_id = product.id
             )
 
             return JsonResponse({"message" : "SECCESS"}, status=200)
@@ -120,7 +127,6 @@ class ProductAdminView(View):    # Update, Delete method 클래스
             if product.seller_id != data.get("seller_id"):
                 return JsonResponse({"result" : "Need to Authorization"})
 
-            seller_id = data.get("seller_id", product.seller.id)
             subject = data.get("subject", product.subject)
             description = data.get("description", product.description)
             amount = data.get("amount", product.amount)
@@ -130,7 +136,6 @@ class ProductAdminView(View):    # Update, Delete method 클래스
                 return JsonResponse({"result" : "Please re-enter the end_date"}, status=200)
 
             Product.objects.filter(id=product_id).update(
-                seller_id = seller_id,
                 subject = subject,
                 description = description,
                 amount = amount,
@@ -154,7 +159,10 @@ class ProductFundingView(View):
 
             productuser, created = ProductUser.objects.get_or_create(
                 user_id = user_id,
-                product_id = product_id
+                product_id = product_id,
+                defaults = {
+                    "count" : count
+                }
             )
 
             productuser.count += count
@@ -169,7 +177,6 @@ class ProductFundingView(View):
 
             if date.today() > product.end_date:
                 return JsonResponse({"result" : "The funding was closed"}, status=200)
-
 
             return JsonResponse({"result" : "SECCESS"}, status=201)
 
