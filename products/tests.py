@@ -169,7 +169,7 @@ class ProductAdminTest(TestCase):
         self.assertEqual(response.status_code, 400)
 
 class ProductListTest(TestCase):
-   def test_product_list_search_if_Key_error(self):
+    def test_product_list_search_if_Key_error(self):
         client = Client()
         response = client.get('/products/list?sorting=')
         self.maxDiff = None
@@ -179,148 +179,144 @@ class ProductListTest(TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    def setUp(self):
+        seller_list = [
+            Seller(
+                id = 1,
+                name = 'min',
+            ),
+            Seller(
+                id = 2,
+                name = 'seok',
+            ),
+            Seller(
+                id = 3,
+                name = 'lee',
+            ),
+            Seller(
+                id = 4,
+                name = 'hae'
+            )
+        ]
+        Seller.objects.bulk_create(seller_list)
+
+        product_list = [
+            Product(
+                id = 1,
+                subject = '가정용 의자',
+                description = '테스트용',
+                amount = 1000,
+                goal_amount = 100000,
+                end_date = '2022-06-20',
+                created_at = '2022-01-01',
+                seller_id = 1,
+            ),
+            Product(
+                id = 2,
+                subject = '가정용 버너',
+                description = '테스트용',
+                amount = 1500,
+                goal_amount = 55000,
+                end_date = '2022-07-20',
+                created_at = '2022-02-01',
+                seller_id = 2,
+            ),
+            Product(
+                id = 3,
+                subject = '가정용 책상',
+                description = '테스트용',
+                amount = 10000,
+                goal_amount = 200000,
+                end_date = '2022-08-20',
+                created_at = '2022-03-01',
+                seller_id = 3,
+            ),
+            Product(
+                id = 4,
+                subject = '군만두',
+                description = '테스트용',
+                amount = 2000,
+                goal_amount = 20000,
+                end_date = '2022-06-10',
+                created_at = '2022-04-01',
+                seller_id = 4,
+            )
+        ]
+        Product.objects.bulk_create(product_list)
+
+        product_detail_list = [
+            Productdetail(
+                id = 1,
+                product_id = 1,
+                total_amount = 0,
+                total_supporter = 0,
+                rate = 0,
+            ),
+            Productdetail(
+                id = 2,
+                product_id = 2,
+                total_amount = 0,
+                total_supporter = 0,
+                rate = 0,
+            ),
+            Productdetail(
+                id = 3,
+                product_id = 3,
+                total_amount = 0,
+                total_supporter = 0,
+                rate = 0,
+            ),
+            Productdetail(
+                id = 4,
+                product_id = 4,
+                total_amount = 0,
+                total_supporter = 0,
+                rate = 0,
+            )
+        ]
+        Productdetail.objects.bulk_create(product_detail_list)
+
+    def tearDown(self):
+        Seller.objects.all().delete()
+        Product.objects.all().delete()
+        Productdetail.objects.all().delete()
     
-    #  search & sorting test는 아래의 에러 코드를 해결하지 못하였습니다. 빠른 시일 내에 해결하겠습니다.
-    #  ValueError: Content-Type header is "text/html", not "application/json"
+    def test_product_list_search_success(self):
+        client = Client()
+        
+        response = client.get('/products/list?search=가정&sorting=late_open')
+        print(response)
+        self.maxDiff = None
 
-    # def setUp(self):
-    #     seller_list = [
-    #         Seller(
-    #             id = 1,
-    #             name = 'min',
-    #         ),
-    #         Seller(
-    #             id = 2,
-    #             name = 'seok',
-    #         ),
-    #         Seller(
-    #             id = 3,
-    #             name = 'lee',
-    #         ),
-    #         Seller(
-    #             id = 4,
-    #             name = 'hae'
-    #         )
-    #     ]
-    #     Seller.objects.bulk_create(seller_list)
-
-    #     product_list = [
-    #         Product(
-    #             id = 1,
-    #             subject = '가정용 의자',
-    #             description = '테스트용',
-    #             amount = 1000,
-    #             goal_amount = 100000,
-    #             end_date = '2022-04-30',
-    #             created_at = '2022-01-01',
-    #             seller_id = 1,
-    #         ),
-    #         Product(
-    #             id = 2,
-    #             subject = '가정용 버너',
-    #             description = '테스트용',
-    #             amount = 1500,
-    #             goal_amount = 55000,
-    #             end_date = '2022-05-04',
-    #             created_at = '2022-02-01',
-    #             seller_id = 2,
-    #         ),
-    #         Product(
-    #             id = 3,
-    #             subject = '가정용 책상',
-    #             description = '테스트용',
-    #             amount = 10000,
-    #             goal_amount = 200000,
-    #             end_date = '2022-05-20',
-    #             created_at = '2022-03-01',
-    #             seller_id = 3,
-    #         ),
-    #         Product(
-    #             id = 4,
-    #             subject = '군만두',
-    #             description = '테스트용',
-    #             amount = 2000,
-    #             goal_amount = 20000,
-    #             end_date = '2022-06-10',
-    #             created_at = '2022-04-01',
-    #             seller_id = 4,
-    #         )
-    #     ]
-    #     Product.objects.bulk_create(product_list)
-
-    #     product_detail_list = [
-    #         Productdetail(
-    #             id = 1,
-    #             product_id = 1,
-    #             total_amount = 0,
-    #             total_supporter = 0,
-    #             rate = 0,
-    #         ),
-    #         Productdetail(
-    #             id = 2,
-    #             product_id = 2,
-    #             total_amount = 0,
-    #             total_supporter = 0,
-    #             rate = 0,
-    #         ),
-    #         Productdetail(
-    #             id = 3,
-    #             product_id = 3,
-    #             total_amount = 0,
-    #             total_supporter = 0,
-    #             rate = 0,
-    #         ),
-    #         Productdetail(
-    #             id = 4,
-    #             product_id = 4,
-    #             total_amount = 0,
-    #             total_supporter = 0,
-    #             rate = 0,
-    #         )
-    #     ]
-    #     Productdetail.objects.bulk_create(product_detail_list)
-
-    # def tearDown(self):
-    #     Seller.objects.all().delete()
-    #     Product.objects.all().delete()
-    #     Productdetail.objects.all().delete()
-    
-    # def test_product_list_search_success(self):
-    #     client = Client()
-
-    #     response = client.get('products/list?search=가정&sorting=late_open', content_type="application/json")
-    #     print(response)
-    #     self.maxDiff = None
-
-    #     self.assertEqual(response.json(),
-    #         {
-    #         'result' : [{
-    #             'product_id' : 1,
-    #             'subject' : '가정용 책상',
-    #             'seller_id' : 1,
-    #             'name' : 'lee',
-    #             'total_amount' : '0원',
-    #             'rate' : '0%',
-    #             'd-day' : '16일'
-    #             },
-    #             {
-    #             'product_id' : 2,
-    #             'subject' : '가정용 버너',
-    #             'seller_id' : 2,
-    #             'name' : 'seok',
-    #             'total_amount' : '0원',
-    #             'rate' : '0%',
-    #             'd-day' : '20일'
-    #             },
-    #             {
-    #             'product_id' : 3,
-    #             'subject' : '가정용 의자',
-    #             'seller_id' : 3,
-    #             'name' : 'min',
-    #             'total_amount' : '0원',
-    #             'rate' : '0%',
-    #             'd-day' : '36일'
-    #             }]
-    #         }
-    #     )
-    #     self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(),
+            {
+            'result' : [{
+                'product_id' : 3,
+                'subject' : '가정용 책상',
+                'seller_id' : 3,
+                'name' : 'lee',
+                'total_amount' : '0원',
+                'rate' : '0%',
+                'd-day' : '86일'
+                },
+                {
+                'product_id' : 2,
+                'subject' : '가정용 버너',
+                'seller_id' : 2,
+                'name' : 'seok',
+                'total_amount' : '0원',
+                'rate' : '0%',
+                'd-day' : '55일'
+                },
+                {
+                'product_id' : 1,
+                'subject' : '가정용 의자',
+                'seller_id' : 1,
+                'name' : 'min',
+                'total_amount' : '0원',
+                'rate' : '0%',
+                'd-day' : '25일'
+                }]
+            }
+        )
+        self.assertEqual(response.status_code, 200)
