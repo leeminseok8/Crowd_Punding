@@ -8,39 +8,39 @@ from users.models import Seller
 class ProductOpenTest(TestCase):
     def setUp(self):
         Seller.objects.create(
-            id = 1,
+            id   = 1,
             name = "minseok"
         )
 
         Product.objects.create(
-            id=1,
-            subject = "화성 정착",
+            id          = 1,
+            subject     = "화성 정착",
             description = "우주 개척",
-            amount = 100,
+            amount      = 100,
             goal_amount = 10000,
-            end_date = "2022-12-12",
-            seller_id = 1,
+            end_date    = "2022-12-12",
+            seller_id   = 1,
         )
 
         Productdetail.objects.create(
-            id = 1,
-            total_amount = 0,
+            id              = 1,
+            total_amount    = 0,
             total_supporter = 0,
-            rate = 0,
-            product_id = 1
+            rate            = 0,
+            product_id      = 1
         )
 
     def test_success_product_open_view_get_method(self):
         client = Client()
 
         result = {
-            "id" : 1,
-            "subject" : "화성 정착",
+            "id"          : 1,
+            "subject"     : "화성 정착",
             "description" : "우주 개척",
-            "amount" : 100,
+            "amount"      : 100,
             "goal_amount" : 10000,
-            "end_date" : "2022-12-12",
-            "seller_id" : 1
+            "end_date"    : "2022-12-12",
+            "seller_id"   : 1
         }
         res = json.dumps(result)
         response = client.post('/products/open', res, content_type="application/json")
@@ -73,58 +73,58 @@ class ProductAdminTest(TestCase):
         Seller.objects.bulk_create(sellers)
         products = [
             Product(
-                id = 1,
-                subject = '핸드폰',
+                id          = 1,
+                subject     = '핸드폰',
                 description = '핸드폰 상세설명',
-                amount = 100000,
+                amount      = 100000,
                 goal_amount = 2000000,
-                end_date = '2022-12-20',
-                seller_id = 1,
-                created_at = '2022-03-10',
+                end_date    = '2022-12-20',
+                seller_id   = 1,
+                created_at  = '2022-03-10',
             ),
             Product(
-                id = 2,
-                subject = '킥보드',
+                id          = 2,
+                subject     = '킥보드',
                 description = '킥보드 상세설명',
-                amount = 50000,
+                amount      = 50000,
                 goal_amount = 4000000,
-                end_date = '2022-08-15',
-                seller_id = 2,
-                created_at = '2022-04-02',
+                end_date    = '2022-08-15',
+                seller_id   = 2,
+                created_at  = '2022-04-02',
             ),
             Product(
-                id = 3,
-                subject = '편안한 날으는 자동차',
+                id          = 3,
+                subject     = '편안한 날으는 자동차',
                 description = '편안한 날으는 자동차 상세설명',
-                amount = 2000000,
+                amount      = 2000000,
                 goal_amount = 80000000,
-                end_date = '2022-09-19',
-                seller_id = 3,
-                created_at = '2022-02-05',
+                end_date    = '2022-09-19',
+                seller_id   = 3,
+                created_at  = '2022-02-05',
             )
         ]
         Product.objects.bulk_create(products)
         productdetails = [
             Productdetail(
-                id = 1,
-                total_amount = 0,
+                id              = 1,
+                total_amount    = 0,
                 total_supporter = 0,
-                rate = 0,
-                product_id = 1
+                rate            = 0,
+                product_id      = 1
             ),
             Productdetail(
-                id = 2,
-                total_amount = 0,
+                id              = 2,
+                total_amount    = 0,
                 total_supporter = 0,
-                rate = 0,
-                product_id = 2
+                rate            = 0,
+                product_id      = 2
             ),
             Productdetail(
-                id = 3,
-                total_amount = 0,
+                id              = 3,
+                total_amount    = 0,
                 total_supporter = 0,
-                rate = 0,
-                product_id = 3
+                rate            = 0,
+                product_id      = 3
             )
         ]
         Productdetail.objects.bulk_create(productdetails)
@@ -136,15 +136,15 @@ class ProductAdminTest(TestCase):
 
     def test_success_product_patch(self):
         data = {
-            'seller_id' : 1,
-            'subject' : '1번 제품 수정본',
+            'seller_id'   : 1,
+            'subject'     : '1번 제품 수정본',
             'description' : '상세 설명 수정',
-            'amount' : 400000,
-            'end_date' : '2022-11-11'
+            'amount'      : 400000,
+            'end_date'    : '2022-11-11'
         }
-        url = '/products/1'
-        res = json.dumps(data)
-        client = Client()
+        url      = '/products/1'
+        res      = json.dumps(data)
+        client   = Client()
         response = client.patch(url, res, content_type='application/json')
         self.assertEqual(response.json(),
             {'result': 'SECCESS'}
@@ -153,15 +153,15 @@ class ProductAdminTest(TestCase):
 
     def test_fail_product_patch(self):       
         tmp = {
-            'seller_id' : 1,
-            'subject' : '서빙 로봇',
+            'seller_id'   : 1,
+            'subject'     : '서빙 로봇',
             'description' : '상세 설명 수정',
-            'amount' : 400000,
-            'end_date' : '2022-11-11'
+            'amount'      : 400000,
+            'end_date'    : '2022-11-11'
         }
-        url = '/products/10000000000000000000'
-        data = json.dumps(tmp)
-        client = Client()
+        url      = '/products/10000000000000000000'
+        data     = json.dumps(tmp)
+        client   = Client()
         response = client.patch(url, data, content_type='application/json')
         self.assertEqual(response.json(),
             {'result': 'Product matching query does not exist.'}
@@ -170,8 +170,8 @@ class ProductAdminTest(TestCase):
 
 class ProductListTest(TestCase):
     def test_product_list_search_if_Key_error(self):
-        client = Client()
-        response = client.get('/products/list?sorting=')
+        client       = Client()
+        response     = client.get('/products/list?sorting=')
         self.maxDiff = None
 
         self.assertEqual(response.json(),
@@ -182,19 +182,19 @@ class ProductListTest(TestCase):
     def setUp(self):
         seller_list = [
             Seller(
-                id = 1,
+                id   = 1,
                 name = 'min',
             ),
             Seller(
-                id = 2,
+                id   = 2,
                 name = 'seok',
             ),
             Seller(
-                id = 3,
+                id   = 3,
                 name = 'lee',
             ),
             Seller(
-                id = 4,
+                id   = 4,
                 name = 'hae'
             )
         ]
@@ -202,76 +202,76 @@ class ProductListTest(TestCase):
 
         product_list = [
             Product(
-                id = 1,
-                subject = '가정용 의자',
+                id          = 1,
+                subject     = '가정용 의자',
                 description = '테스트용',
-                amount = 1000,
+                amount      = 1000,
                 goal_amount = 100000,
-                end_date = '2022-06-20',
-                created_at = '2022-01-01',
-                seller_id = 1,
+                end_date    = '2022-06-20',
+                created_at  = '2022-01-01',
+                seller_id   = 1,
             ),
             Product(
-                id = 2,
-                subject = '가정용 버너',
+                id          = 2,
+                subject     = '가정용 버너',
                 description = '테스트용',
-                amount = 1500,
+                amount      = 1500,
                 goal_amount = 55000,
-                end_date = '2022-07-20',
-                created_at = '2022-02-01',
-                seller_id = 2,
+                end_date    = '2022-07-20',
+                created_at  = '2022-02-01',
+                seller_id   = 2,
             ),
             Product(
-                id = 3,
-                subject = '가정용 책상',
+                id          = 3,
+                subject     = '가정용 책상',
                 description = '테스트용',
-                amount = 10000,
+                amount      = 10000,
                 goal_amount = 200000,
-                end_date = '2022-08-20',
-                created_at = '2022-03-01',
-                seller_id = 3,
+                end_date    = '2022-08-20',
+                created_at  = '2022-03-01',
+                seller_id   = 3,
             ),
             Product(
-                id = 4,
-                subject = '군만두',
+                id          = 4,
+                subject     = '군만두',
                 description = '테스트용',
-                amount = 2000,
+                amount      = 2000,
                 goal_amount = 20000,
-                end_date = '2022-06-10',
-                created_at = '2022-04-01',
-                seller_id = 4,
+                end_date    = '2022-06-10',
+                created_at  = '2022-04-01',
+                seller_id   = 4,
             )
         ]
         Product.objects.bulk_create(product_list)
 
         product_detail_list = [
             Productdetail(
-                id = 1,
-                product_id = 1,
-                total_amount = 0,
+                id              = 1,
+                product_id      = 1,
+                total_amount    = 0,
                 total_supporter = 0,
-                rate = 0,
+                rate            = 0,
             ),
             Productdetail(
-                id = 2,
-                product_id = 2,
-                total_amount = 0,
+                id              = 2,
+                product_id      = 2,
+                total_amount    = 0,
                 total_supporter = 0,
-                rate = 0,
+                rate            = 0,
             ),
             Productdetail(
-                id = 3,
-                product_id = 3,
-                total_amount = 0,
+                id              = 3,
+                product_id      = 3,
+                total_amount    = 0,
                 total_supporter = 0,
-                rate = 0,
+                rate            = 0,
             ),
             Productdetail(
-                id = 4,
-                product_id = 4,
-                total_amount = 0,
+                id              = 4,
+                product_id      = 4,
+                total_amount    = 0,
                 total_supporter = 0,
-                rate = 0,
+                rate            = 0,
             )
         ]
         Productdetail.objects.bulk_create(product_detail_list)
@@ -285,37 +285,36 @@ class ProductListTest(TestCase):
         client = Client()
         
         response = client.get('/products/list?search=가정&sorting=late_open')
-        print(response)
         self.maxDiff = None
 
         self.assertEqual(response.json(),
             {
             'result' : [{
-                'product_id' : 3,
-                'subject' : '가정용 책상',
-                'seller_id' : 3,
-                'name' : 'lee',
+                'product_id'   : 3,
+                'subject'      : '가정용 책상',
+                'seller_id'    : 3,
+                'name'         : 'lee',
                 'total_amount' : '0원',
-                'rate' : '0%',
-                'd-day' : '86일'
+                'rate'         : '0%',
+                'd-day'        : '86일'
                 },
                 {
-                'product_id' : 2,
-                'subject' : '가정용 버너',
-                'seller_id' : 2,
-                'name' : 'seok',
+                'product_id'   : 2,
+                'subject'      : '가정용 버너',
+                'seller_id'    : 2,
+                'name'         : 'seok',
                 'total_amount' : '0원',
-                'rate' : '0%',
-                'd-day' : '55일'
+                'rate'         : '0%',
+                'd-day'        : '55일'
                 },
                 {
-                'product_id' : 1,
-                'subject' : '가정용 의자',
-                'seller_id' : 1,
-                'name' : 'min',
+                'product_id'   : 1,
+                'subject'      : '가정용 의자',
+                'seller_id'    : 1,
+                'name'         : 'min',
                 'total_amount' : '0원',
-                'rate' : '0%',
-                'd-day' : '25일'
+                'rate'         : '0%',
+                'd-day'        : '25일'
                 }]
             }
         )
