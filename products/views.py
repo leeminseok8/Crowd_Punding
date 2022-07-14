@@ -77,6 +77,29 @@ class ProductView(View):
         except Product.DoesNotExist:
             return JsonResponse({"result" : "Product matching query does not exist"}, status=400)
 
+class ProductDetailView(View):
+    def get(self, request, product_id):
+        try:
+            product = Product.objects.get(id=product_id)
+    
+            data = {
+                "product_id"      : product.id,
+                "subject"         : product.subject,
+                "seller_id"       : product.seller.id,
+                "name"            : product.seller.name,
+                "total_amount"    : product.productdetail.total_amount,
+                "rate"            : product.productdetail.rate,
+                "d-day"           : (product.end_date-date.today()).days,
+                "description"     : product.description,
+                "goal_amount"     : product.goal_amount,
+                "total_supporter" : product.productdetail.total_supporter
+            }
+    
+            return JsonResponse({"result" : data}, status=200)
+
+        except Product.DoesNotExist:
+            return JsonResponse({"result" : "Product matching query does not exist."}, status=400)
+
     def delete(self, request, product_id):
         try:
             data = json.loads(request.body)
@@ -122,29 +145,6 @@ class ProductView(View):
             return JsonResponse({"result" : "Product matching query does not exist."}, status=400)
         except ValueError:
             return JsonResponse({"result" : "VALUE_ERROR"}, status=400)
-
-class ProductDetailView(View):
-    def get(self, request, product_id):
-        try:
-            product = Product.objects.get(id=product_id)
-    
-            data = {
-                "product_id"      : product.id,
-                "subject"         : product.subject,
-                "seller_id"       : product.seller.id,
-                "name"            : product.seller.name,
-                "total_amount"    : product.productdetail.total_amount,
-                "rate"            : product.productdetail.rate,
-                "d-day"           : (product.end_date-date.today()).days,
-                "description"     : product.description,
-                "goal_amount"     : product.goal_amount,
-                "total_supporter" : product.productdetail.total_supporter
-            }
-    
-            return JsonResponse({"result" : data}, status=200)
-
-        except Product.DoesNotExist:
-            return JsonResponse({"result" : "Product matching query does not exist."}, status=400)
 
 class FundingView(View):
     def post(self, request):
